@@ -57,6 +57,6 @@ public class StrictBankAccount extends SimpleBankAccount {
      * @return true if the withdrawal is allowed, otherwise false.
      */
     protected boolean isWithdrawAllowed(final double amount) {
-        return amount > 0 && getBalance() > amount;
+        return amount > 0 && getBalance() >= amount;
     }
 }
