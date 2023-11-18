@@ -1,5 +1,6 @@
 package it.unibo.deathnote.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -91,7 +92,7 @@ public class DeathNoteImpl implements DeathNote {
         this.time = System.currentTimeMillis();
     }
 
-    private class DeathList extends HashMap<String, List<String>> {
+    private class DeathList extends HashMap<String, ArrayList<String>> {
         private String lastName = "";
 
         void put(String name) {
@@ -99,7 +100,8 @@ public class DeathNoteImpl implements DeathNote {
                 throw new NullPointerException("Name is null");
             } else {
                 lastName = name;
-                this.put(name, List.of("Heath Attack", ""));
+                ArrayList<String> MyList = new ArrayList<>(List.of("Heath Attack", ""));
+                this.put(name, MyList);
             }
         }
 
