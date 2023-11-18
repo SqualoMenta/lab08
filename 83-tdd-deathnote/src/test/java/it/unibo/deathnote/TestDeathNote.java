@@ -7,15 +7,22 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Objects;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.unibo.deathnote.api.DeathNote;
 import it.unibo.deathnote.impl.DeathNoteImpl;
 
-
 class TestDeathNote {
 
-    DeathNote firstNote = new DeathNoteImpl();
+    private DeathNote firstNote;
+    private static final long NO_MORE_CAUSES = 100;
+    private static final long NO_MORE_DETAILS = 6100;
+
+    @BeforeEach
+    void init() {
+        firstNote = new DeathNoteImpl();
+    }
 
     @Test
     public void testGetRule() {
@@ -56,11 +63,15 @@ class TestDeathNote {
         if (!firstNote.isNameWritten("Bitten Fra")) {
             fail("name was not written, but it shuold have been");
         }
-        assertFalse(firstNote.isNameWritten(""), "a blanck name is in the note for no reason")
+        assertFalse(firstNote.isNameWritten(""), "a blanck name is in the note for no reason");
+        firstNote.writeName("null");
+        assertTrue(firstNote.isNameWritten("Bitten Fra"));
+        assertTrue(firstNote.isNameWritten("null"));
     }
 
     @Test
     public void writeDeathCause() throws InterruptedException {
+        firstNote.writeName("Bitten Fra");
         try {
             DeathNote secondNote = new DeathNoteImpl();
             secondNote.writeDeathCause("Death of Death");
@@ -74,17 +85,24 @@ class TestDeathNote {
         } catch (IllegalStateException e) {
             assertEquals(e.getMessage(), "no cause of death");
         }
+        try {
+            firstNote.getDeathCause("Baldo");
+            fail("the passed name was not in the book");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "the passed name was not in the book");
+        }
         assertEquals("Heath Attack", firstNote.getDeathCause("Bitten Fra"));
         firstNote.writeName("Baldo");
         firstNote.writeDeathCause("karting accident");
         assertEquals("karting accident", firstNote.getDeathCause("Baldo"));
-        Thread.sleep(100);
-        assertEquals(-1, firstNote.writeDeathCause("Death"));
+        Thread.sleep(NO_MORE_CAUSES);
+        assertFalse(firstNote.writeDeathCause("Death"));
         assertEquals(firstNote.getDeathCause("Baldo"), "karting accident");
     }
 
     @Test
-    public void TestWriteDetails(String details) {
+    public void TestWriteDetails(String details) throws InterruptedException {
+        firstNote.writeName("NullBoy");
         try {
             DeathNote secondNote = new DeathNoteImpl();
             secondNote.writeDetails("Death after Death");
@@ -96,26 +114,20 @@ class TestDeathNote {
             firstNote.writeDeathCause(null);
             fail("not specified the cause death, but nothing went wrong");
         } catch (IllegalStateException e) {
-            assertEquals(e.getMessage(), "no cause of death");
+            assertEquals(e.getMessage(), "no details of death");
         }
+        try {
+            firstNote.getDeathDetails("Null");
+            fail("the passed name was not in the book");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "the passed name was not in the book");
+        }
+        assertEquals(firstNote.getDeathDetails("NullBoy"), "");
+        assertTrue(firstNote.writeDetails("run for to long"));
+        assertEquals(firstNote.getDeathDetails("NullBoy"), "run for to long");
+        firstNote.writeName("L");
+        Thread.sleep(NO_MORE_DETAILS);
+        assertFalse(firstNote.writeDetails("run for to long"));
+        assertEquals(firstNote.getDeathDetails("L"), "");
     }
-
-    @Test
-    public String getDeathCause(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDeathCause'");
-    }
-
-    @Test
-    public String getDeathDetails(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDeathDetails'");
-    }
-
-    @Test
-    public boolean isNameWritten(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isNameWritten'");
-    }
-
 }
