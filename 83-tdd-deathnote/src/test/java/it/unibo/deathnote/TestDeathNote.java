@@ -55,14 +55,8 @@ class TestDeathNote {
         } catch (NullPointerException e) {
             assertEquals(e.getMessage(), "Name is null");
         }
-        if (firstNote.isNameWritten("Bitten Fra")) {
-            fail("name was not written, but test said it was");
-        } else {
-            firstNote.writeName("Bitten Fra");
-        }
-        if (!firstNote.isNameWritten("Bitten Fra")) {
-            fail("name was not written, but it shuold have been");
-        }
+        assertFalse(firstNote.isNameWritten("Bitten Fra"));
+        firstNote.writeName("Bitten Fra");
         assertFalse(firstNote.isNameWritten(""), "a blanck name is in the note for no reason");
         firstNote.writeName("null");
         assertTrue(firstNote.isNameWritten("Bitten Fra"));
@@ -83,7 +77,7 @@ class TestDeathNote {
             firstNote.writeDeathCause(null);
             fail("not specified the cause death, but nothing went wrong");
         } catch (IllegalStateException e) {
-            assertEquals(e.getMessage(), "no cause of death");
+            assertEquals(e.getMessage(), "nothing passed");
         }
         try {
             firstNote.getDeathCause("Baldo");
@@ -101,7 +95,7 @@ class TestDeathNote {
     }
 
     @Test
-    public void TestWriteDetails(String details) throws InterruptedException {
+    public void TestWriteDetails() throws InterruptedException {
         firstNote.writeName("NullBoy");
         try {
             DeathNote secondNote = new DeathNoteImpl();
@@ -111,10 +105,10 @@ class TestDeathNote {
             assertEquals(e.getMessage(), "no person to kill");
         }
         try {
-            firstNote.writeDeathCause(null);
+            firstNote.writeDetails(null);
             fail("not specified the cause death, but nothing went wrong");
         } catch (IllegalStateException e) {
-            assertEquals(e.getMessage(), "no details of death");
+            assertEquals(e.getMessage(), "nothing passed");
         }
         try {
             firstNote.getDeathDetails("Null");

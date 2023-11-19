@@ -14,8 +14,6 @@ public class DeathNoteImpl implements DeathNote {
 
     private static final long TIME_MAX_CAUSE = 40;
     private static final long TIME_MAX_DETAILS = 6040;
-    private static final int CAUSE = 0;
-    private static final int DETAILS = 1;
 
     @Override
     public String getRule(int ruleNumber) throws IllegalArgumentException {
@@ -35,30 +33,28 @@ public class DeathNoteImpl implements DeathNote {
 
     @Override
     public boolean writeDeathCause(String cause) {
-        if (Objects.isNull(cause)) {
-            throw new IllegalStateException("no cause of death");
-        } else if (victims.isEmpty()) {
-            throw new IllegalStateException("no person to kill");
-        }
-
-        if (System.currentTimeMillis() - this.time < TIME_MAX_CAUSE) {
-            victims.changeCause(cause);
-            return true;
-        } else {
-            return false;
-        }
+        return writeSomething(cause, Writer.CAUSE);
     }
 
     @Override
     public boolean writeDetails(String details) {
-        if (Objects.isNull(details)) {
-            throw new IllegalStateException("no details of death");
+        return writeSomething(details, Writer.DETAILS);
+    }
+
+    private boolean writeSomething(String something, final Writer whatDo) {
+        if (Objects.isNull(something)) {
+            throw new IllegalStateException("nothing passed");
         } else if (victims.isEmpty()) {
             throw new IllegalStateException("no person to kill");
         }
 
-        if (System.currentTimeMillis() - this.time < TIME_MAX_DETAILS) {
-            victims.changeDetails(details);
+        if (System.currentTimeMillis()
+                - this.time < (whatDo.equals(Writer.CAUSE) ? TIME_MAX_CAUSE : TIME_MAX_DETAILS)) {
+            if (whatDo.equals(Writer.CAUSE)) {
+                victims.changeCause(something);
+            } else {
+                victims.changeDetails(something);
+            }
             return true;
         } else {
             return false;
@@ -68,7 +64,7 @@ public class DeathNoteImpl implements DeathNote {
     @Override
     public String getDeathCause(String name) {
         try {
-            return this.victims.get(name).get(CAUSE);
+            return this.victims.get(name).get(Writer.CAUSE.ordinal());
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("the passed name was not in the book");
         }
@@ -77,7 +73,7 @@ public class DeathNoteImpl implements DeathNote {
     @Override
     public String getDeathDetails(String name) {
         try {
-            return this.victims.get(name).get(DETAILS);
+            return this.victims.get(name).get(Writer.DETAILS.ordinal());
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("the passed name was not in the book");
         }
@@ -90,6 +86,11 @@ public class DeathNoteImpl implements DeathNote {
 
     private void update() {
         this.time = System.currentTimeMillis();
+    }
+
+    private enum Writer {
+        CAUSE,
+        DETAILS
     }
 
     private class DeathList extends HashMap<String, ArrayList<String>> {
